@@ -302,8 +302,8 @@ walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension)
 
 ```
 
-Get the numbers
-```{r}
+<!-- Get the numbers -->
+```{r, eval=FALSE}
 upps_scores_long %>% 
   count(item, score, dimension) %>%
   arrange(dimension) %>% 
