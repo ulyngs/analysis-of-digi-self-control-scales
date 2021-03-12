@@ -19,8 +19,8 @@ library(DT)
 # Read in data
 ## Compare Victoria's two datasets
 ```{r}
-numeric_data <- read_csv(here("data", "2020-03_victoria_study", "scales_numeric.csv"))
-textual_data <- read_csv(here("data", "2020-03_victoria_study", "scales_text.csv"))
+numeric_data <- read_csv("scales_numeric.csv")
+textual_data <- read_csv("scales_text.csv")
 
 ids_in_text <- textual_data %>% 
   filter(!is.na(Q76)) %>% 
@@ -40,7 +40,7 @@ ids_in_text %>%
 ## Use the dataset with textual responses
 Our dataset looks like this:
 ```{r}
-survey <- read_csv(here("data", "2020-03_victoria_study", "scales_text.csv"), skip = 1) %>% 
+survey <- read_csv("scales_text.csv", skip = 1) %>% 
   janitor::clean_names() %>% 
   select(-x1) %>% 
   filter(!is.na(please_enter_your_prolific_id)) %>% 

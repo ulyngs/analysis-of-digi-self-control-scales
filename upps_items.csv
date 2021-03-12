@@ -1,0 +1,160 @@
+Status,# Full,# Short,Scoring (original),Scoring (digital),Dimension,Original item,Focus,Current item for digital self-control,Alternate version,Previous versions,Notes,TODO,Assigned to
+ok,-2,,,,,NA,,"general version:
+
+Which of the following digital devices do you use?
+
+(checkbox options: smartphone, tablet, laptop computer, desktop computer, smartwatch, gaming console, internet-connected TV)","workshop version:
+
+Which of the following digital devices do you use?
+
+(checkbox options: smartphone, tablet, laptop computer, desktop computer)
+
+",v1 Which digital devices do you use regularly?,"UL: what's the criteria for deciding the devices that should be included?
+
+UL: dropped 'regularly' from v1 as per MI's concern that we ask just about the ones they spend most time on. This question should go hand-in-hand with the time question below, so we still get that information.",,
+ok,-1,,,,,"NA
+(adapted from https://dl.acm.org/doi/fullHtml/10.1145/3313831.3376435 )",,"In the past week, on average, approximately how much time PER DAY have you spent actively using your INSERT DEVICE?",,,UL: this question should be asked for each digital device they check,,
+ok,0,,,,,"Below are a number of statements that describe ways in which people act and think. For each statement, please indicate how much you agree or disagree with the statement. If you Agree Strongly circle 1, if you Agree Somewhat circle 2, if you Disagree somewhat circle 3, and if you Disagree Strongly circle 4. Be sure to indicate your agreement or disagreement for every statement below.",,"version w/ dynamic text based on previous answers:
+
+Below are a number of statements that describe ways in which people act and think in relation to their digital devices.
+
+Please indicate how much you agree or disagree with each statement in relation to your (INSERT DEVICES THE PARTICIPANT CHECKED).","version w/ static text:
+
+Below are a number of statements that describe ways in which people act and think in relation to their digital devices.
+
+Please indicate how much you agree or disagree with each statement in relation to the digital devices you use.",,"UL: Plan A is to use the current item when it's possible to adjust the question dynamically (I can do this using formr) 
+MI: I like the alternate actually, as I think the Qs shoudl pertain to all devices not just the one they most use
+KL: I prefer the current item when you can generate dynamically based on the devices they use, but the alternate is simpler to implement and works too. 
+
+KL: One side question: are we intentionally excluding other digital devices, i.e., gaming consoles, smart speakers, VR headsets, internet-connected TVs, etc.? These are clearly digital devices, so we should have some rationale for including/excluding, which might just be that our workshop interventions aren't targeted towards those devices?",,
+ok,1,,O,O,premeditation,I have a reserved and cautious attitude toward life.,mixed,I have a reserved and cautious attitude towards using digital devices,,v1 I use my digital devices in a reserved and cautious way,"v1
+MI: I like the alternate",,
+ok,2,,R,R,negative urgency,I have trouble controlling my impulses,during use,I have trouble controlling my impulses when using digital devices,,v1 I have trouble controlling my impulses to go on my digital devices,"UL: changed to 'when using' instead of v1's 'go on', because three other items are already focused on impulsive checking (full: #7, #39, #53)",,
+ok,3,,R,R,sensation seeking,I generally seek new and exciting experiences and sensations.,during use,I generally seek new and exciting experiences and sensations online,,,"UL: closest I think is the ""Problematic and Risky Internet Use Screening Scale (PRIUSS) for adolescents and young adults"": https://www.sciencedirect.com/science/article/abs/pii/S0747563214000478 
+https://www.sciencedirect.com/science/article/pii/S1876285915002223 
+
+Items on their factor 3, ""Risky and Impulsive Internet Use"":
+Allow time on the internet to negatively affect your school performance
+Lose motivation to do other things that need to get done 
+Neglect responsibilities
+Avoid other activities in order to stay online
+Put internet use in front of important, everyday activities
+Lose sleep due to nighttime internet use
+Use the internet excessively
+
+In general, the things researchers talk about in relation to risky behaviour online are ""[exposure] to a variety of sexual and violent material, financial scams, cyber bullying, harassment, and the risk of meeting dangerous people or even sexual predators"" https://journals.lww.com/cinjournal/fulltext/2011/06000/Risky_Internet_Behaviors_of_Middle_School.6.aspx 
+
+Kai: Two quick thoughts here re: adapting these SS items for digital self-control:
+1) It seems that these items come from another scale (the Zuckerman SSS-V) that itself has subscales: https://scienceofbehaviorchange.org/measures/zuckerman-sensation-seeking-scale-v/ We might want to try to make our adapted items also capture items that fit with those corresponding subscales.
+2) Maybe there's already a scale of ""sensation-seeking online"" or ""risky behaviors online"" that we can borrow/adapt from? ",,
+ok,4,1,O,R,perseverance,I generally like to see things through to the end.,mixed,My digital devices generally prevent me from seeing things through to the end,,v1 My digital devices generally do not prevent me from seeing things through to the end,UL: modified from v1 to avoid double negative MI: works for me,,
+ok,5,,R,R,positive urgency,"When I am very happy, I can’t seem to stop myself from doing things that can have bad consequences.",mixed,"When I am very happy, I can't seem to stop myself from using my digital devices in a way that can have bad consequences",,,,,
+ok,6,2,O,O,premeditation,My thinking is usually careful and purposeful.,mixed,My digital device use is usually careful and purposeful,,,,,
+ok,7,,R,R,negative urgency,"I have trouble resisting my cravings (for food, cigarettes, etc.).",initiate use,"I have trouble resisting guilty pleasures on my digital devices (social media, Netflix, etc.)",,v1 I have trouble resisting my desires to check my digital devices,,,
+ok,8,,R,R,sensation seeking,I'll try anything once.,mixed,I'll try anything on my digital devices once,,,,,
+ok,9,,R,R,perseverance,I tend to give up easily.,DD interference,My digital devices lead me to give up easily on other things,,,,,
+ok,10,3,R,R,positive urgency,"When I am in great mood, I tend to get into situations that could cause me problems.",mixed,"When I am in a good mood, I tend to use my digital devices in a way that could cause me problems",,"v1 When I am in a great mood, I tend to get into situations on my digital devices that could cause me problems","v1
+MI: I like the alternate",,
+ok,11,,O,O,premeditation,I am not one of those people who blurt out things without thinking.,mixed,I am not one of those people who messages or posts without thinking on my digital devices,,"v2 I am not one of those people who sends messages without thinking on my digital devices.
+v1 I am not one of those people who shares things without thinking on my digital devices.","v2
+UL: Agreed. However, we want to make sure 'sends messages' is interpreted to include social media posting. How about ""sends messages or posts""?
+
+KL: I think sends messages applies to everyone, whereas shares things connotes posting to social media, which not everyone does",,
+ok,12,,R,R,negative urgency,I often get involved in things I later wish I could get out of.,during use,I often get involved in things online I later wish I could get out of,,v1 I often get involved in drama online I later wish I could get out of,"v1
+UL: should we go with 'things' rather than 'drama', to follow original item?",,
+ok,13,,R,R,sensation seeking,I like sports and games in which you have to choose your next move very quickly.,mixed,I like playing games on my digital devices where you have to choose your next move very quickly,,v1 I like apps and video games where you have to make decisions very quickly,"v1
+UL: Should this be constrained to games?",,
+ok,14,4,O,O,perseverance,Unfinished tasks really bother me.,mixed,It really bothers me when my digital devices prevent me from finishing a task,,,,,
+ok,15,,R,R,positive urgency,"When I am very happy, I tend to do things that may cause problems in my life.",DD interference,"When I am very happy, I tend to do things on my digital devices that may cause problems in my life",,"v1 When I am very happy, I tend to do things using my digital devices that may cause problems in my life.","v1
+MI: I like the alternate",,
+ok,16,5,O,O,premeditation,I like to stop and think things over before I do them.,mixed,I like to stop and think things over before I do them on my digital devices,,,,,
+ok,17,6,R,R,negative urgency,"When I feel bad, I will often do things I later regret in order to make myself feel better now.",mixed,"When I feel bad, I often use my digital devices in ways I later regret in order to make myself feel better at the moment",,,,,
+ok,18,,R,R,sensation seeking,I would enjoy water skiing.,mixed,I would enjoy flirting with strangers online,I would enjoy chatting with strangers online,v1 I would enjoy spending an entire day surfing around on my digital devices,UL: what if ppl are in a committed relationship?,,
+ok,19,7,O,O,perseverance,Once I get going on something I hate to stop.,mixed,I hate it when my digital devices stop me from doing things I have started,,,,,
+ok,20,10,R,R,positive urgency,I tend to lose control when I am in a great mood.,mixed,I tend to lose control over my use of digital devices when I am in a great mood,,,,,
+ok,21,,O,O,premeditation,I don't like to start a project until I know exactly how to proceed.,initiate use,I don't like to get on my digital devices unless I know exactly what I will be doing,,,,,
+ok,22,8,R,R,negative urgency,"Sometimes when I feel bad, I can’t seem to stop what I am doing even though it is making me feel worse.",mixed,"Sometimes when I feel bad, I can't seem to stop using my digital devices even though it is making me feel worse",,"v1 Sometimes when I feel bad, I can’t seem to stop what I am doing on my digital devices even though it is making me feel worse","v1
+MI: I like alternative",,
+ok,23,9,R,R,sensation seeking,I quite enjoy taking risks.,mixed,I quite enjoy taking risks on my digital devices,,,"Candidate experiences: Social validation? (1 million twitter likes?
+Trolling? 
+Share something sensitive / revealing online
+I enjoy using shitty passwords online?
+I enjoy buying things online to experience a little rise.
+The problem is that the social approval aspects here are completely different to e.g. skiing or flying an airplane",,
+ok,24,,O,R,perseverance,I concentrate easily,mixed,My digital devices make it difficult for me to concentrate,It's easy for me to concentrate when using my digital devices,"v2 My digital devices prevent me from concentrating
+v1 My digital devices do not prevent me from concentrating",,,
+ok,25,,R,R,positive urgency,"When I am really ecstatic, I tend to get out of control.",during use,"When I am really ecstatic, I tend to get out of control on my digital devices",,"v1 When I am really ecstatic, I tend to get out of control when using my digital devices.","UL: I've put 'on my DD' as the current version, because (1) is more clear as it avoids 2x 'when' in the sentence, (2) the other items are clearly about DD interference.
+
+v1
+KL: ""When using"" makes me think more about interference from DD; ""On my DD"" makes me think more about concentration on DDs themselves. 
+MI: Both work for me though maybe a slight preference for the first one",,
+ok,26,,R,R,sensation seeking,I would enjoy parachute jumping.,mixed,I would enjoy hacking into top-secret computer systems,,v1 I would enjoy sharing a post online that many people respond to,"UL: maybe something about ethical hacking
+I would enjoy hacking into a friend's email
+I would enjoy hacking into secret government networks
+I would enjoy hacking into protected websites
+I would enjoy reading conspiracy theories online",,
+ok,27,11,O,R,perseverance,I finish what I start.,mixed,My digital devices get in the way of me finishing what I have started,,v1 My digital devices do not get in the way of me finishing what I have started,UL: changed from v1 to avoid answering it feeling like a double negative (I would have to 'agree' that they 'do not' get in the way) MI: works for me,,
+ok,28,12,O,O,premeditation,"I tend to value and follow a rational, ""sensible"" approach to things.",mixed,"I tend to value and follow a rational, sensible approach to my use of digital devices",,"v1 I tend to value and follow a rational, “sensible” approach to my use of digital devices","UL: I know original item has double quotes, but I don't think they should be there - they invite the reader to interpret it as irony",,
+ok,29,13,R,R,negative urgency,When I am upset I often act without thinking.,mixed,When I am upset I often use my digital devices without thinking,,v1 When I am upset I often act without thinking on my digital devices,"v1
+MI: I like alternative",,
+ok,30,,R,R,positive urgency,"Others would say I make bad choices when I am extremely happy about
+something.",DD interference,Others would say I make bad choices on my digital devices when I am extremely happy about something.,,,,,
+ok,31,14,R,R,sensation seeking,"I welcome new and exciting experiences and sensations, even if they are a little frightening and unconventional.",mixed,"I welcome new and exciting experiences and sensations on my digital devices, even if they are a little frightening and unconventional",,,Not immediately relatable?,,
+ok,32,,O,R,perseverance,I am able to pace myself so as to get things done on time.,mixed,Distractions on my digital devices prevent me from getting things done on time,,"v3 Distractions on my digital devices prevent me from pacing myself so as to get things done on time
+v2 My digital devices prevent me from pacing myself so as to get things done on time
+v1 My digital devices do not prevent me from pacing myself so as to get things done on time",,,
+ok,33,,O,O,premeditation,I usually make up my mind through careful reasoning.,mixed,I usually decide what to do on my digital devices through careful reasoning,,"v2 I usually make up my mind about getting on my digital devices through careful reasoning
+v1 I usually make up my mind to get on my digital devices through careful reasoning",,,
+ok,34,15,R,R,negative urgency,"When I feel rejected, I will often say things that I later regret.",mixed,"When I feel rejected, I often use my digital devices in ways that I later regret",,"v1 When I feel rejected, I will often share things using my digital devices that I later regret","v1
+UL: I think the alternative wording is better; MI: agreed",,
+ok,35,17,R,R,positive urgency,Others are shocked or worried about the things I do when I am feeling very excited.,mixed,Others are worried about my use of digital devices when I am feeling very excited,,v1 Others are shocked or worried about the things I do on my digital devices when I am feeling very excited,"v1
+UL: need to reduce sexual connotations",,
+ok,36,16,R,R,sensation seeking,I would like to learn to fly an airplane.,mixed,I would like to learn how to create social media posts that get a lot of attention,,,"#36 & 48 (full) are a clear improvement, but still have a more ambiguous moral status than the items in the original scale",,
+ok,37,,O,R,perseverance,I am a person who always gets the job done,mixed,My digital devices make it difficult for me to be a person who always gets the job done,,"v2 My digital devices stop me from being a person who always gets the job done
+v1 My digital devices do not stop me from being a person who always gets the job done","UL: changed from v1 to avoid the double negation ""do not prevent""",,
+ok,38,,O,O,premeditation,I am a cautious person.,DD interference,I am a person who uses digital devices cautiously,,,,,
+ok,39,,R,R,negative urgency,It is hard for me to resist acting on my feelings.,initiate use,It is hard for me to resist acting on my desire to check my digital devices,,,"UL: adjusted #7
+UL: duplicate of #7 (full).",,
+ok,40,,R,R,positive urgency,"When I get really happy about something, I tend to do things that can have bad consequences.",DD interference,"When I get really happy about something, I tend to use my digital devices in a way that can have bad consequences",,"v1 When I get really happy about something, I tend to do things on my digital devices that can
+have bad consequences.","v1
+MI: I like alternate",,
+ok,41,,R,R,sensation seeking,I sometimes like doing things that are a bit frightening.,mixed,I sometimes like doing things online that are a bit frightening,,I would enjoy sending joke emails to spammers online,,,
+ok,42,,O,R,perseverance,I almost always finish projects that I start,DD interference,My digital devices almost always get in the way of me finishing projects that I start,,(unused - discarded to avoid double negative) My digital devices almost never get in the way of me finishing projects that I start,"MI: I offered an alternative, buit it has a slight double negative that we might want to avoid",,
+ok,43,,O,O,premeditation,Before I get into a new situation I like to find out what to expect from it.,initiate use,Before I try new apps or services on my digital devices I like to find out what to expect from them,"(R) Once I start using my digital device, it is hard for me to stop",v1 Before I get on my digital devices I like to think about what to expect from it,"UL: the underlying tension is to what extent we stick closely to the items from the original scale vs ensure all the concerns ppl typically raise about digital self-control are covered
+
+UL: if 'stickiness' = unintended long use, then I don't think it always represents lack of premeditation. Many people say they pick up a DD to do one thing but then forget their initial goal and do something else. Inability to stop when you've started something isn't really the same as premeditation, is it?
+
+MI: as with the item below, we need items that capture the stickiness of DD, which I think represents lack of premeditation",,
+ok,44,,R,R,negative urgency,I often make matters worse because I act without thinking when I am upset.,mixed,I often make matters worse because I act without thinking on my digital devices when I am upset,,,,,
+ok,45,,R,R,positive urgency,"When overjoyed, I feel like I can’t stop myself from going overboard.",mixed,"When overjoyed, I feel like I can’t stop myself from doing excessive things on my digital devices.",,"v1 When overjoyed, I feel like I can’t stop myself from going overboard on my digital devices.
+When overjoyed, I start using my digital devices and can't stop from going too far","UL: The interesting challenge with this item is that positive urgency does not really come up in digital self-control research --- it's all about negative urgency where ppl struggle to regulate their social media use when in a bad mood. Though maybe some impulse shopping could be driven by positive urgency
+
+UL: the phrase ""going overboard"" may be unclear for non-native English speaker",,
+ok,46,18,R,R,sensation seeking,I would enjoy the sensation of skiing very fast down a high mountain slope.,mixed,I would enjoy the feeling of acting as a fictional persona on social media,,v1 I would enjoy creating an anonymous account that would criticise the people I don’t like online,"Kai: One study also found that sensation seeking has a positive relationship with online deception:
+Hung-Yi Lu. 2008. Sensation-seeking, Internet dependency, and online interpersonal deception. Cyberpsychology & behavior: the impact of the Internet, multimedia and virtual reality on behavior and society 11, 2: 227–231. https://doi.org/10.1089/cpb.2007.0053",,
+ok,47,,R,R,perseverance,"Sometimes there are so many little things to be done that I just ignore them
+all.",DD interference,Sometimes there are so many little things to be done that I just get on my digital devices and ignore them all,,,,,
+ok,48,19,O,O,premeditation,I usually think carefully before doing anything.,mixed,I usually think carefully before doing anything on my digital devices,,,,,
+ok,49,,R,R,positive urgency,"When I am really excited, I tend not to think of the consequences of my actions.",DD interference,"When I am really excited, I tend not to think of the consequences of my actions when using digital devices",,"v1 When I am really excited, I tend not to think of the consequences of my actions on my digital devices.",UL: promoted alternate to current,,
+ok,50,,R,R,negative urgency,"In the heat of an argument, I will often say things that I later regret.",during use,"In the heat of an argument online, I will often say things I later regret",,,,,
+ok,51,,R,R,sensation seeking,I would like to go scuba diving.,mixed,I sometimes have the desire to say something outrageous online,,,,,
+ok,52,20,R,R,positive urgency,I tend to act without thinking when I am really excited.,initiate use,I tend to grab my digital devices without thinking when I am really excited,,v1 I tend to act without thinking on my digital devices when I am really excited,"v1
+MI: I like the alternate",,
+ok,53,,O,O,negative urgency,I always keep my feelings under control.,initiate use,I always keep my desire to get on my digital devices under control,,,,,
+ok,54,,R,R,positive urgency,"When I am really happy, I often find myself in situations that I normally wouldn’t be comfortable with.",mixed,"When I am really happy, I often find myself using my digital devices in a way that I normally wouldn’t be comfortable with.",,"v1 When I am really happy, I often find myself in situations on my digital devices that I normally
+wouldn’t be comfortable with.","v1
+MI: I like alternate",,
+ok,55,,O,O,premeditation,"Before making up my mind, I consider all the advantages and
+disadvantages.",initiate use,"Before deciding what to do on my digital devices, I consider all the advantages and disadvantages","1: (R) I often use my digital devices for hours without considering the advantages or disadvantages
+
+2: (R) Once I get on my digital device, I sometimes surf for hours without much thought",v1 I usually decide what to do on my digital devices through careful reasoning,"UL: how's alternate 1?
+
+MI: we need something to capture mindless DD use",,
+ok,56,,R,R,sensation seeking,I would enjoy fast driving.,mixed,I occasionally say things online to get a reaction from others,,,,,
+ok,57,,R,R,positive urgency,"When I am very happy, I feel like it is ok to give in to cravings or overindulge.",mixed,"When I am very happy, I feel like it is ok to give in to my desire to overuse my digital devices",,,,,
+ok,58,,R,R,negative urgency,Sometimes I do impulsive things that I later regret.,during use,Sometimes I do impulsive things on my digital devices that I later regret,,,"UL: added column ('Focus:') to keep track of how many items focus on impulsiveness during use vs impulsiveness in initiating use. Perhaps we just want a reasonable mix?
+
+MI: Issue with many of these is to target impulsive things on DDs vs to target the impulse to check DD in the first place",,
+ok,59,,R,R,positive urgency,I am surprised at the things I do while in a great mood.,mixed,I am surprised at the things I do on my digital devices while in a great mood ,"1: When I am in a great mood, I am surprised at the things I do on my digital devices
+
+2: I am surprised at the things I do when using my digital devices while in a great mood ",,,,
