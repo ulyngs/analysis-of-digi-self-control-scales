@@ -1,0 +1,358 @@
+---
+title: "Analysis of victoria data"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    toc_depth: 4
+number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(here)
+library(DT)
+```
+
+# Read in data
+## Compare Victoria's two datasets
+```{r}
+numeric_data <- read_csv(here("data", "2020-03_victoria_study", "scales_numeric.csv"))
+textual_data <- read_csv(here("data", "2020-03_victoria_study", "scales_text.csv"))
+
+ids_in_text <- textual_data %>% 
+  filter(!is.na(Q76)) %>% 
+  slice(3:n()) %>% 
+  select(Q76)
+```
+
+The following prolific ids are present in the dataset with the text responses, but not in the ones with numeric coding:
+
+```{r}
+ids_in_text %>% 
+  anti_join(numeric_data %>% select(Q76))
+```
+
+
+
+## Use the dataset with textual responses
+Our dataset looks like this:
+```{r}
+survey <- read_csv(here("data", "2020-03_victoria_study", "scales_text.csv"), skip = 1) %>% 
+  janitor::clean_names() %>% 
+  select(-x1) %>% 
+  filter(!is.na(please_enter_your_prolific_id)) %>% 
+  slice(2:n()) %>% 
+  rename(ethnicity = how_would_you_best_describe_yourself_multiple_answers_possible_selected_choice,
+         prolific_id = please_enter_your_prolific_id,
+         devices_used = which_of_the_following_digital_devices_do_you_use) %>% 
+  rename_with(~str_replace(.x, "in_the_past_week_on_average_approximately_how_much_time_per_day_have_you_spent_actively_using_your_", "daily_time_")) %>% 
+  rename_with(~str_replace(.x, "think_about_how_you_use_your_qid64_choice_group_selected_choices_please_indicate_how_much_each_of_the_following_statements_reflects_your_experience_using_these_digital_devices_in_the_past_week_", "")) %>% 
+  rename_with(~str_replace(.x, "below_are_a_number_of_statements_that_describe_ways_in_which_people_act_and_think_in_relation_to_their_digital_devices_please_indicate_how_much_you_agree_or_disagree_with_each_statement_in_relation_to_your_qid64_choice_group_selected_choices_", ""))
+
+survey %>% 
+  datatable()
+
+```
+
+
+# Analysis
+## Descriptives
+### Ethnicity
+```{r}
+survey %>% 
+  count(ethnicity) %>% 
+  arrange(desc(n)) %>% 
+  datatable()
+```
+
+### Device use
+#### Devices they have
+```{r}
+survey %>% 
+  count(devices_used) %>% 
+  mutate(devices_used = fct_reorder(devices_used, n)) %>% 
+  ggplot() +
+    geom_col(aes(devices_used, n)) +
+    coord_flip() + 
+    labs(x = "", y = "")
+
+props_use <- survey %>% 
+  select(devices_used) %>% 
+  mutate(devices_used = str_split(devices_used, ",")) %>% 
+  unnest(cols = c(devices_used)) %>% 
+  count(devices_used) %>% 
+  mutate(ptc = (n / nrow(survey))*100)
+
+props_use %>% 
+  ggplot() +
+    aes(x = reorder(devices_used, ptc), y = ptc) +
+    geom_col() +
+    coord_flip() +
+    labs(x = "", y = "%")
+```
+
+#### Time spent
+```{r}
+usage_levels <- c(
+  "More than 10 hours per day",
+  "9-10 hours per day",
+  "8-9 hours per day",
+  "7-8 hours per day",
+  "6-7 hours per day",
+  "5-6 hours per day",
+  "4-5 hours per day",
+  "3-4 hours per day",
+  "2-3 hours per day",
+  "1-2 hours per day",
+  "31-60 minutes per day",
+  "10-30 minutes per day",
+  "Less than 10 minutes per day"
+)
+
+
+time_spent <- survey %>% 
+  select(prolific_id, starts_with("daily_time")) %>% 
+  pivot_longer(cols = -prolific_id) %>% 
+  rename(device = name, time = value) %>% 
+  ungroup() %>% 
+  mutate(time = factor(time, levels = usage_levels, ordered = TRUE))
+  
+time_spent %>% 
+  filter(!is.na(time)) %>% 
+  mutate(device = str_replace(device, "daily_time_", ""),
+         device = str_replace(device, "_excluding_the_time_you_passively_wear_it", "")) %>% 
+  ggplot() +
+    geom_histogram(aes(fct_rev(time)), stat = "count") +
+    coord_flip() +
+    facet_wrap(~device, ncol = 7) +
+    labs(title = "Daily time by device", subtitle = '"In the past week on average approximately how much time per day\nhave you spent actively using your..."', x = "")
+
+```
+
+## Scales
+### BDSCS
+#### Distribution of scores on individual items
+
+Put the data in long format, in preparation for plotting it
+
+```{r}
+long_bdscs_scores <- survey %>% 
+  select(prolific_id, in_the_past_week_i_was_good_at_resisting_temptation_on_my_digital_devices:in_the_past_week_i_often_acted_without_thinking_on_my_digital_devices) %>% 
+  mutate(across(-prolific_id, ~case_when(
+    . == "Not at all" ~ "1",
+    . == "Very much" ~ "5",
+    TRUE ~ .
+  ))) %>% 
+  pivot_longer(-prolific_id) %>% 
+  rename(item = name, score = value)
+
+long_bdscs_scores %>% 
+  datatable()
+```
+
+Plot the distributions of responses to each item:
+
+```{r}
+long_bdscs_scores %>% 
+  mutate(item = str_replace_all(item, "_", " ")) %>% 
+  ggplot(aes(x = item, y = score)) +
+    geom_boxplot() +
+    geom_jitter(width = 0.3, height = 0.2, alpha = 0.2) +
+    coord_flip() +
+    labs(x = "", y = "1 = not at all, 5 = very much") +
+    scale_x_discrete(labels = scales::label_wrap(60))
+
+drama_colors <- c("darkgreen", "green", "orange", "red", "darkred")
+
+long_bdscs_scores %>% 
+  mutate(item = str_replace_all(item, "_", " ")) %>% 
+  mutate(score = factor(score)) %>% 
+  ggplot(aes(x = item, fill = fct_rev(score))) +
+    geom_bar(position = "fill") +
+    scale_fill_manual (values = drama_colors) +
+    coord_flip() +
+    labs(x = "", y = "1 = not at all, 5 = very much", fill = "Score") +
+    scale_x_discrete(labels = scales::label_wrap(60)) +
+    scale_y_continuous(labels = scales::percent)
+```
+
+
+#### Distribution of overall scores
+Reverse score on items that should be reverse-scored
+
+```{r}
+non_reverse_items <- c(
+  "in_the_past_week_i_was_good_at_resisting_temptation_on_my_digital_devices",
+  "in_the_past_week_i_rejected_temptations_on_my_digital_devices",
+  "based_on_the_past_week_people_would_say_that_i_have_iron_self_discipline_over_how_i_use_my_digital_devices"
+)
+
+scores_w_reversed <- long_bdscs_scores %>% 
+  mutate(scoring = if_else(item %in% non_reverse_items, "O", "R")) %>% 
+  mutate(score = as.double(score),
+         score = case_when(
+    scoring == "R" & score == 1 ~ 5,
+    scoring == "R" & score == 2 ~ 4,
+    scoring == "R" & score == 4 ~ 2,
+    scoring == "R" & score == 5 ~ 1,
+    TRUE ~ score
+  ))
+```
+
+
+Plot a histogram of the scores
+```{r}
+scores_w_reversed %>% 
+  group_by(prolific_id) %>% 
+  summarise(total_score = sum(score, na.rm = TRUE)) %>% 
+  ggplot() +
+    geom_histogram(aes(x = total_score))
+
+```
+
+
+
+### UPPS
+#### Distribution of scores on individual items, by dimension
+Grab the scale information
+
+```{r}
+upps_items <- read_csv("upps_items.csv") %>% 
+  janitor::clean_names() %>% 
+  select(number_full, scoring_digital, dimension, current_item_for_digital_self_control) %>% 
+  filter(!is.na(dimension)) %>% 
+  rename(item = current_item_for_digital_self_control) %>% 
+  mutate(item = janitor::make_clean_names(item),
+         item = str_replace_all(item, "_", " "))
+  
+
+upps_items %>% 
+  datatable()
+```
+
+Make the dataset long and join it with the item information, in preparation for plotting
+
+```{r}
+upps <- survey %>%
+  select(prolific_id, i_have_a_reserved_and_cautious_attitude_towards_using_digital_devices:i_am_surprised_at_the_things_i_do_on_my_digital_devices_while_in_a_great_mood)
+
+
+upps_scores_long <- upps %>% 
+  pivot_longer(cols = -prolific_id) %>% 
+  rename(item = name, score = value) %>% 
+  mutate(item = str_replace_all(item, "_", " ")) %>% 
+  left_join(upps_items) %>% 
+  mutate(score = factor(score, levels = c("Strongly disagree", 
+                                          "Disagree", 
+                                          "Neither agree nor disagree",
+                                          "Agree",
+                                          "Strongly agree")))
+
+```
+
+Make a point plot for each dimension
+
+```{r, fig.width=6, fig.height=4, out.width='100%'}
+upps_dimensions <- c("premeditation",
+                    "negative urgency",
+                    "positive urgency",
+                    "perseverance",
+                    "sensation seeking")
+
+draw_point_plot_for_a_dimension <- function(some_dimension){
+  plot <- upps_scores_long %>% 
+    filter(dimension == some_dimension) %>% 
+    ggplot(aes(x = item, y = score)) +
+      geom_boxplot() +
+      geom_jitter(width = 0.3, height = 0.2, alpha = 0.2) +
+      coord_flip() +
+      labs(x = "", y = "", title = str_c("Dimension: ", some_dimension)) +
+      scale_x_discrete(labels = scales::label_wrap(60))
+  
+  print(plot)
+}
+
+walk(upps_dimensions, draw_point_plot_for_a_dimension)
+```
+
+Make a stacked bar chart for each dimension
+
+```{r, fig.width=8, fig.height=6, out.width='100%'}
+drama_colors <- c("darkgreen", "green", "orange", "red", "darkred")
+
+draw_stacked_bar_chart_for_a_dimension <- function(some_dimension){
+  plot <- upps_scores_long %>% 
+    filter(dimension == some_dimension) %>% 
+    ggplot(aes(x = item, fill = fct_rev(score))) +
+      geom_bar(position = "fill") +
+      scale_fill_manual (values = drama_colors) +
+      coord_flip() +
+      labs(x = "", y = "", title = str_c("Dimension: ", some_dimension), fill = "Score") +
+      scale_x_discrete(labels = scales::label_wrap(60)) +
+      scale_y_continuous(labels = scales::percent)
+  
+  print(plot)
+}
+
+walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension)
+
+
+```
+
+Get the numbers
+```{r}
+upps_scores_long %>% 
+  count(item, score, dimension) %>%
+  arrange(dimension) %>% 
+  mutate(ptc = (n/nrow(survey))*100,
+         ptc = round(ptc, 1)) %>% 
+  pivot_wider(names_from = score, values_from = c(n, ptc)) %>% 
+  datatable()
+```
+
+#### Distribution of mean scores on each dimension
+Note that the original scale ["uses a 1 (agree strongly) to 4 (disagree strongly) response format"](http://www.impulsivity.org/measurement/UPPS-P_59_item.pdf).
+In keeping with the original scale, we code such that "Strongly disagree" is a 5 and "Strongly agree" is a 1.
+
+
+We first do the numerical coding, then calculate the mean score for each participant
+
+```{r}
+upps_scores_long_w_numeric <- upps_scores_long %>% 
+  # add numeric coding
+  mutate(score_numeric = case_when(
+    score == "Strongly disagree" ~ 5,
+    score == "Disagree" ~ 4,
+    score == "Neither agree nor disagree" ~ 3,
+    score == "Agree" ~ 2,
+    score == "Strongly agree" ~ 1
+  )) %>% 
+  # reverse numeric coding when item should be reverse scored
+  mutate(score_numeric = case_when(
+    scoring_digital == "R" & score_numeric == 1 ~ 5,
+    scoring_digital == "R" & score_numeric == 2 ~ 4,
+    scoring_digital == "R" & score_numeric == 4 ~ 2,
+    scoring_digital == "R" & score_numeric == 5 ~ 1,
+    TRUE ~ score_numeric))
+
+dimension_scores_by_participant <- upps_scores_long_w_numeric %>% 
+  group_by(prolific_id, dimension) %>% 
+  summarise(scale_score = mean(score_numeric, na.rm = TRUE)) %>% 
+  ungroup()
+
+```
+
+Now let's plot it
+
+```{r}
+dimension_scores_by_participant %>% 
+  mutate(dimension = factor(dimension, levels = upps_dimensions)) %>% 
+  ggplot(aes(x = dimension, y = scale_score)) +
+      geom_boxplot() +
+      geom_jitter(width = 0.2, height = 0, alpha = 0.3) +
+      labs(x = "", y = "", title = "Mean impulsivity score by dimension")
+```
+
