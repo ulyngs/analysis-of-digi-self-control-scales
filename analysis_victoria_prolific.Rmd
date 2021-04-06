@@ -17,40 +17,31 @@ library(DT)
 ```
 
 # Read in data
-## Compare Victoria's two datasets
+## Keep data that passed the attention check
 ```{r}
-numeric_data <- read_csv("scales_numeric.csv")
-textual_data <- read_csv("scales_text.csv")
+textual_data <- read_csv("scales_text.csv", skip = 1)
 
-ids_in_text <- textual_data %>% 
-  filter(!is.na(Q76)) %>% 
-  slice(3:n()) %>% 
-  select(Q76)
+pass_att_check <- read_csv("ulrik-data-text-12-03.csv")
+
+data_to_use <- textual_data %>% 
+  filter(`Please enter your prolific ID:` %in% pass_att_check$Q76)
+
 ```
-
-The following prolific ids are present in the dataset with the text responses, but not in the ones with numeric coding:
-
-```{r}
-ids_in_text %>% 
-  anti_join(numeric_data %>% select(Q76))
-```
-
-
 
 ## Use the dataset with textual responses
 Our dataset looks like this:
+
 ```{r}
-survey <- read_csv("scales_text.csv", skip = 1) %>% 
+survey <- data_to_use %>% 
   janitor::clean_names() %>% 
   select(-x1) %>% 
-  filter(!is.na(please_enter_your_prolific_id)) %>% 
-  slice(2:n()) %>% 
   rename(ethnicity = how_would_you_best_describe_yourself_multiple_answers_possible_selected_choice,
          prolific_id = please_enter_your_prolific_id,
          devices_used = which_of_the_following_digital_devices_do_you_use) %>% 
   rename_with(~str_replace(.x, "in_the_past_week_on_average_approximately_how_much_time_per_day_have_you_spent_actively_using_your_", "daily_time_")) %>% 
   rename_with(~str_replace(.x, "think_about_how_you_use_your_qid64_choice_group_selected_choices_please_indicate_how_much_each_of_the_following_statements_reflects_your_experience_using_these_digital_devices_in_the_past_week_", "")) %>% 
-  rename_with(~str_replace(.x, "below_are_a_number_of_statements_that_describe_ways_in_which_people_act_and_think_in_relation_to_their_digital_devices_please_indicate_how_much_you_agree_or_disagree_with_each_statement_in_relation_to_your_qid64_choice_group_selected_choices_", ""))
+  rename_with(~str_replace(.x, "below_are_a_number_of_statements_that_describe_ways_in_which_people_act_and_think_in_relation_to_their_digital_devices_please_indicate_how_much_you_agree_or_disagree_with_each_statement_in_relation_to_your_qid64_choice_group_selected_choices_", "")) %>% 
+  select(prolific_id, everything())
 
 survey %>% 
   datatable()
@@ -132,6 +123,9 @@ time_spent %>%
 
 ```
 
+### Browsers & tech savvy
+
+
 ## Scales
 ### BDSCS
 #### Distribution of scores on individual items
@@ -153,44 +147,21 @@ long_bdscs_scores %>%
   datatable()
 ```
 
-Plot the distributions of responses to each item:
+
+
+#### Plot distribution of overall scores
+We reverse score items that should be reverse-scored, so the plot it intuitive to read
 
 ```{r}
-long_bdscs_scores %>% 
-  mutate(item = str_replace_all(item, "_", " ")) %>% 
-  ggplot(aes(x = item, y = score)) +
-    geom_boxplot() +
-    geom_jitter(width = 0.3, height = 0.2, alpha = 0.2) +
-    coord_flip() +
-    labs(x = "", y = "1 = not at all, 5 = very much") +
-    scale_x_discrete(labels = scales::label_wrap(60))
-
 drama_colors <- c("darkgreen", "green", "orange", "red", "darkred")
 
-long_bdscs_scores %>% 
-  mutate(item = str_replace_all(item, "_", " ")) %>% 
-  mutate(score = factor(score)) %>% 
-  ggplot(aes(x = item, fill = fct_rev(score))) +
-    geom_bar(position = "fill") +
-    scale_fill_manual (values = drama_colors) +
-    coord_flip() +
-    labs(x = "", y = "1 = not at all, 5 = very much", fill = "Score") +
-    scale_x_discrete(labels = scales::label_wrap(60)) +
-    scale_y_continuous(labels = scales::percent)
-```
-
-
-#### Distribution of overall scores
-Reverse score on items that should be reverse-scored
-
-```{r}
 non_reverse_items <- c(
   "in_the_past_week_i_was_good_at_resisting_temptation_on_my_digital_devices",
   "in_the_past_week_i_rejected_temptations_on_my_digital_devices",
   "based_on_the_past_week_people_would_say_that_i_have_iron_self_discipline_over_how_i_use_my_digital_devices"
 )
 
-scores_w_reversed <- long_bdscs_scores %>% 
+bdscs_scores_reversed <- long_bdscs_scores %>% 
   mutate(scoring = if_else(item %in% non_reverse_items, "O", "R")) %>% 
   mutate(score = as.double(score),
          score = case_when(
@@ -200,17 +171,37 @@ scores_w_reversed <- long_bdscs_scores %>%
     scoring == "R" & score == 5 ~ 1,
     TRUE ~ score
   ))
+
+# plot
+bdscs_scores_reversed %>% 
+  mutate(score = factor(score)) %>% 
+  mutate(item = str_replace_all(item, "_", " ")) %>% 
+  ggplot(aes(x = item, fill = fct_rev(score))) +
+    geom_bar(position = "fill") +
+    scale_fill_manual (values = drama_colors) +
+    coord_flip() +
+    scale_y_continuous(labels = scales::percent) +
+    scale_x_discrete(labels = scales::label_wrap(70)) +
+    labs(fill = "Self-control score\n(items reversed)", x = "", y = "",
+         title = "Green means less impulsivity")
+
+#ggsave("bdsc_distributions_victoria.png", width = 8, height = 5)
 ```
 
 
 Plot a histogram of the scores
 ```{r}
-scores_w_reversed %>% 
+summarised_scores <- bdscs_scores_reversed %>% 
   group_by(prolific_id) %>% 
-  summarise(total_score = sum(score, na.rm = TRUE)) %>% 
+  summarise(total_score = sum(score, na.rm = TRUE)) 
+
+summarised_scores %>% 
   ggplot() +
     geom_histogram(aes(x = total_score))
 
+summarised_scores %>% 
+  summarise(mean = mean(total_score),
+            sd = sd(total_score))
 ```
 
 
@@ -245,23 +236,29 @@ upps_scores_long <- upps %>%
   rename(item = name, score = value) %>% 
   mutate(item = str_replace_all(item, "_", " ")) %>% 
   left_join(upps_items) %>% 
-  mutate(score = factor(score, levels = c("Strongly disagree", 
-                                          "Disagree", 
-                                          "Neither agree nor disagree",
-                                          "Agree",
-                                          "Strongly agree")))
+  mutate(score = factor(score, levels = c("Strongly disagree", "Disagree", "Neither agree nor disagree", "Agree", "Strongly agree"), ordered = TRUE)) %>% 
+  mutate(score_numeric = case_when(
+    score == "Strongly disagree" ~ 5,
+    score == "Disagree" ~ 4,
+    score == "Neither agree nor disagree" ~ 3,
+    score == "Agree" ~ 2,
+    score == "Strongly agree" ~ 1
+  )) %>% 
+  # reverse numeric coding when item should be reverse scored
+  mutate(score_numeric_reversed = case_when(
+    scoring_digital == "R" & score_numeric == 1 ~ 5,
+    scoring_digital == "R" & score_numeric == 2 ~ 4,
+    scoring_digital == "R" & score_numeric == 4 ~ 2,
+    scoring_digital == "R" & score_numeric == 5 ~ 1,
+    TRUE ~ score_numeric)) %>% 
+  mutate(score_numeric_reversed = factor(score_numeric_reversed))
+  
 
 ```
 
-Make a point plot for each dimension
 
-```{r, fig.width=6, fig.height=4, out.width='100%'}
-upps_dimensions <- c("premeditation",
-                    "negative urgency",
-                    "positive urgency",
-                    "perseverance",
-                    "sensation seeking")
-
+```{r, fig.width=6, fig.height=4, out.width='100%', eval = FALSE}
+# point plot for each dimension
 draw_point_plot_for_a_dimension <- function(some_dimension){
   plot <- upps_scores_long %>% 
     filter(dimension == some_dimension) %>% 
@@ -278,17 +275,21 @@ draw_point_plot_for_a_dimension <- function(some_dimension){
 walk(upps_dimensions, draw_point_plot_for_a_dimension)
 ```
 
+##### Plot the proportions of actual responses
 Make a stacked bar chart for each dimension
 
 ```{r, fig.width=8, fig.height=6, out.width='100%'}
-drama_colors <- c("darkgreen", "green", "orange", "red", "darkred")
+upps_dimensions <- c("premeditation",
+                    "negative urgency",
+                    "positive urgency",
+                    "perseverance",
+                    "sensation seeking")
 
 draw_stacked_bar_chart_for_a_dimension <- function(some_dimension){
   plot <- upps_scores_long %>% 
     filter(dimension == some_dimension) %>% 
     ggplot(aes(x = item, fill = fct_rev(score))) +
       geom_bar(position = "fill") +
-      scale_fill_manual (values = drama_colors) +
       coord_flip() +
       labs(x = "", y = "", title = str_c("Dimension: ", some_dimension), fill = "Score") +
       scale_x_discrete(labels = scales::label_wrap(60)) +
@@ -301,6 +302,38 @@ walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension)
 
 
 ```
+
+##### Plot the proportions with color coding for impulsivity
+Make a stacked bar chart for each dimension
+
+```{r, fig.width=8, fig.height=6, out.width='100%'}
+upps_dimensions <- c("premeditation",
+                    "negative urgency",
+                    "positive urgency",
+                    "perseverance",
+                    "sensation seeking")
+
+drama_colors <- c("darkred", "red", "orange", "green", "darkgreen")
+
+draw_stacked_bar_chart_for_a_dimension <- function(some_dimension){
+  plot <- upps_scores_long %>% 
+    filter(dimension == some_dimension) %>% 
+    ggplot(aes(x = item, fill = fct_rev(score_numeric_reversed))) +
+      geom_bar(position = "fill") +
+      scale_fill_manual (values = drama_colors) +
+      coord_flip() +
+      labs(x = "", y = "", title = str_c("Dimension: ", some_dimension, "\n(Red means more impulse)"), fill = "Score") +
+      scale_x_discrete(labels = scales::label_wrap(60)) +
+      scale_y_continuous(labels = scales::percent)
+  
+  print(plot)
+}
+
+walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension)
+
+
+```
+
 
 <!-- Get the numbers -->
 ```{r, eval=FALSE}
@@ -321,26 +354,9 @@ In keeping with the original scale, we code such that "Strongly disagree" is a 5
 We first do the numerical coding, then calculate the mean score for each participant
 
 ```{r}
-upps_scores_long_w_numeric <- upps_scores_long %>% 
-  # add numeric coding
-  mutate(score_numeric = case_when(
-    score == "Strongly disagree" ~ 5,
-    score == "Disagree" ~ 4,
-    score == "Neither agree nor disagree" ~ 3,
-    score == "Agree" ~ 2,
-    score == "Strongly agree" ~ 1
-  )) %>% 
-  # reverse numeric coding when item should be reverse scored
-  mutate(score_numeric = case_when(
-    scoring_digital == "R" & score_numeric == 1 ~ 5,
-    scoring_digital == "R" & score_numeric == 2 ~ 4,
-    scoring_digital == "R" & score_numeric == 4 ~ 2,
-    scoring_digital == "R" & score_numeric == 5 ~ 1,
-    TRUE ~ score_numeric))
-
-dimension_scores_by_participant <- upps_scores_long_w_numeric %>% 
+dimension_scores_by_participant <- upps_scores_long %>% 
   group_by(prolific_id, dimension) %>% 
-  summarise(scale_score = mean(score_numeric, na.rm = TRUE)) %>% 
+  summarise(scale_score = mean(as.double(score_numeric_reversed), na.rm = TRUE)) %>% 
   ungroup()
 
 ```
