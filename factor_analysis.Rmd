@@ -1,0 +1,192 @@
+---
+title: "Factor analysis"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(corrr)
+library(psych)
+library(DT)
+```
+
+# Factor analysis
+Following instructions from here: http://www2.hawaii.edu/~georgeha/Handouts/meas/Exercises/_book/efa.html
+
+
+## Read in data
+### Keep data that passed the attention check
+```{r}
+pass_att_check <- read_csv("ulrik-data-text-12-03.csv")
+
+textual_data <- read_csv("scales_text.csv", skip = 1) %>% 
+  filter(`Please enter your prolific ID:` %in% pass_att_check$Q76)
+
+# do sensible column naming
+data_to_use <- textual_data %>% 
+  janitor::clean_names() %>% 
+  select(-x1) %>% 
+  rename(prolific_id = please_enter_your_prolific_id) %>% 
+  rename_with(~str_replace(.x, "think_about_how_you_use_your_qid64_choice_group_selected_choices_please_indicate_how_much_each_of_the_following_statements_reflects_your_experience_using_these_digital_devices_in_the_past_week_", "")) %>% 
+  rename_with(~str_replace(.x, "below_are_a_number_of_statements_that_describe_ways_in_which_people_act_and_think_in_relation_to_their_digital_devices_please_indicate_how_much_you_agree_or_disagree_with_each_statement_in_relation_to_your_qid64_choice_group_selected_choices_", ""))
+
+```
+
+### Join the UPPS-P columns with the item info
+
+```{r}
+upps_items <- read_csv("upps_items.csv") %>% 
+  janitor::clean_names() %>% 
+  select(number_full, scoring_digital, dimension, current_item_for_digital_self_control) %>% 
+  filter(!is.na(dimension)) %>% 
+  rename(item = current_item_for_digital_self_control) %>% 
+  mutate(item = janitor::make_clean_names(item),
+         item = str_replace_all(item, "_", " "))
+
+upps_scores_long <- data_to_use %>%
+  select(prolific_id, i_have_a_reserved_and_cautious_attitude_towards_using_digital_devices:i_am_surprised_at_the_things_i_do_on_my_digital_devices_while_in_a_great_mood) %>% 
+  pivot_longer(cols = -prolific_id) %>% 
+  rename(item = name, score = value) %>% 
+  mutate(item = str_replace_all(item, "_", " ")) %>% 
+  left_join(upps_items) %>% 
+  mutate(score_numeric = case_when(
+    score == "Strongly disagree" ~ 5,
+    score == "Disagree" ~ 4,
+    score == "Neither agree nor disagree" ~ 3,
+    score == "Agree" ~ 2,
+    score == "Strongly agree" ~ 1
+  )) %>% 
+  mutate(item_label = str_c(number_full, "_", dimension))
+  
+upps_scores_wide <- upps_scores_long %>% 
+  select(prolific_id, item_label, score_numeric) %>% 
+  mutate(item_label = str_replace(item_label, "premeditation", "premed"),
+         item_label = str_replace(item_label, "negative urgency", "neg_urg"),
+         item_label = str_replace(item_label, "positive urgency", "pos_urg"),
+         item_label = str_replace(item_label, "sensation seeking", "sen_seek"),
+         item_label = str_replace(item_label, "perseverance", "persev")) %>% 
+  pivot_wider(names_from = item_label,
+              values_from = score_numeric)
+```
+
+So the data set we'll use for factor analysis looks like this:
+
+(1: we're looking at the numerically coded scores, where 5 means 'strongly disagree'
+
+2: we *have not* reverse scored items that should be reversed
+)
+
+```{r}
+upps_scores_wide %>% 
+  datatable()
+```
+
+## Describe the data
+### Summary statistics
+```{r}
+upps_scores_only <- upps_scores_wide %>% select(-prolific_id)
+
+psych::describe(upps_scores_only) %>% 
+  datatable()
+```
+
+### Correlation matrix
+```{r}
+upps_correlations <- upps_scores_only %>% 
+  correlate() %>% 
+  rearrange() %>%  # rearrange by correlations
+  shave() # Shave off the upper triangle for a clean result
+
+fashion(upps_correlations) %>% 
+  datatable()
+
+rplot(upps_correlations)
+```
+
+### KMO factor adequacy & Bartlett's sphericity test
+```{r}
+KMO(upps_scores_only)
+
+cortest.bartlett(upps_scores_only)
+```
+
+
+### Parallel analysis
+```{r}
+library(nFactors)
+
+n_p  <- sum(complete.cases(upps_scores_only)) # The number of participants in our data
+
+n_nu <- ncol(upps_scores_only) # The number of variables in our data
+
+reduced_eig <- eigenComputes(as.data.frame(upps_scores_only), model = "factors", use = "complete")
+
+n_factors  <- length(reduced_eig)
+
+paral <- parallel(subject = n_p,  
+                      var = n_nu, 
+                      rep = 100,
+                 quantile = .95, 
+                   model  = "factors")
+
+parallel_ana <- data.frame(Nfactor = 1:n_factors,
+                           reduced_eig,
+                           RandEigM = paral$eigen$mevpea,
+                           RandEig95= paral$eigen$qevpea)
+parallel_ana <- round(parallel_ana, 3)
+
+parallel_ana
+```
+
+### Scree plot
+#### reduced correlation matrix
+
+```{r}
+scree <- data.frame(factor_n = as.factor(1:n_factors), 
+                  eigenvalue = reduced_eig)
+
+ggplot(scree, aes(x = factor_n, y = eigenvalue, group = 1)) + 
+  geom_point() + geom_line() +
+  xlab("Number of factors") +
+  labs( title = "Scree Plot", 
+        subtitle = "(Based on the reduced correlation matrix)")
+```
+
+#### Unreduced correlation matrix
+```{r}
+fafitfree <- fa(upps_scores_only, nfactors = ncol(upps_scores_only), rotate = "none")
+
+n_factors <- length(fafitfree$e.values)
+
+scree     <- data.frame(
+               Factor_n =  as.factor(1:n_factors), 
+             Eigenvalue = fafitfree$e.values)
+
+ggplot(scree, aes(x = Factor_n, y = Eigenvalue, group = 1)) + 
+  geom_point() + geom_line() +
+  xlab("Number of factors") +
+  ylab("Initial eigenvalue") +
+  labs( title = "Scree Plot", 
+     subtitle = "(Based on the unreduced correlation matrix)")
+```
+
+
+
+## Factor analysis
+### Using raw data, and assume data are continuous
+```{r}
+fafit <- fa(upps_scores_only, nfactors = 4, fm = "ml", rotate = "promax")
+
+n_factors <- length(fafit$e.values)
+
+print(fafit, cut = .32, sort = TRUE, digits = 3)
+```
+
+### Assume ordinal data
