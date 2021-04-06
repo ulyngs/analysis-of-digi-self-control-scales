@@ -63,17 +63,23 @@ upps_scores_long <- data_to_use %>%
     score == "Agree" ~ 2,
     score == "Strongly agree" ~ 1
   )) %>% 
+  mutate(score_numeric_reversed = case_when(
+    scoring_digital == "R" & score_numeric == 1 ~ 5,
+    scoring_digital == "R" & score_numeric == 2 ~ 4,
+    scoring_digital == "R" & score_numeric == 4 ~ 2,
+    scoring_digital == "R" & score_numeric == 5 ~ 1,
+    TRUE ~ score_numeric)) %>% 
   mutate(item_label = str_c(number_full, "_", dimension))
   
 upps_scores_wide <- upps_scores_long %>% 
-  select(prolific_id, item_label, score_numeric) %>% 
+  select(prolific_id, item_label, score_numeric_reversed) %>% 
   mutate(item_label = str_replace(item_label, "premeditation", "premed"),
          item_label = str_replace(item_label, "negative urgency", "neg_urg"),
          item_label = str_replace(item_label, "positive urgency", "pos_urg"),
          item_label = str_replace(item_label, "sensation seeking", "sen_seek"),
          item_label = str_replace(item_label, "perseverance", "persev")) %>% 
   pivot_wider(names_from = item_label,
-              values_from = score_numeric)
+              values_from = score_numeric_reversed)
 ```
 
 So the data set we'll use for factor analysis looks like this:
@@ -190,3 +196,4 @@ print(fafit, cut = .32, sort = TRUE, digits = 3)
 ```
 
 ### Assume ordinal data
+TODO
