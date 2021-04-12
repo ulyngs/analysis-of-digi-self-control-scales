@@ -400,23 +400,19 @@ upps_scores_long_only_top_factors <- upps_scores_long %>%
          item_label = str_replace(item_label, "perseverance", "persev")) %>% 
   filter(item_label %in% short_scale)
 
+upps_scores_long_only_top_factors %>% 
+  mutate(item = str_c(item, " (", item_label, ")"),
+         dimension = factor(dimension, levels = upps_dimensions)) %>% 
+  ggplot(aes(x = item, fill = fct_rev(score_numeric_reversed))) +
+    geom_bar(position = "fill") +
+    scale_fill_manual (values = drama_colors) +
+    coord_flip() +
+    labs(x = "", y = "", title = "Scores on the UPPS-P digital version", subtitle = "Items scored such that \n1 = least impulsive, 5 = most impulsive", fill = "Score") +
+    scale_x_discrete(labels = scales::label_wrap(60)) +
+    scale_y_continuous(labels = scales::percent) +
+    facet_wrap(~dimension, ncol = 1, scales = "free")
 
-draw_stacked_bar_chart_for_a_dimension_short <- function(some_dimension){
-  plot <- upps_scores_long_only_top_factors %>% 
-    filter(dimension == some_dimension) %>% 
-    ggplot(aes(x = item, fill = fct_rev(score_numeric_reversed))) +
-      geom_bar(position = "fill") +
-      scale_fill_manual (values = drama_colors) +
-      coord_flip() +
-      labs(x = "", y = "", title = str_c("Dimension: ", some_dimension, "\n(Red means more impulse)"), fill = "Score") +
-      scale_x_discrete(labels = scales::label_wrap(60)) +
-      scale_y_continuous(labels = scales::percent)
-  
-  print(plot)
-}
-
-walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension_short)
-
+ggsave("upps-short-item-scores.png", width = 8, height = 12)
 
 ```
 
@@ -439,4 +435,6 @@ dimension_scores_by_participant_short_scale %>%
       geom_boxplot() +
       geom_jitter(width = 0.2, height = 0.1, alpha = 0.3) +
       labs(x = "", y = "", title = "Mean impulsivity score by dimension")
+
+ggsave("upps-dimension-mean-scores.png")
 ```
