@@ -372,3 +372,71 @@ dimension_scores_by_participant %>%
       labs(x = "", y = "", title = "Mean impulsivity score by dimension")
 ```
 
+
+### Short UPPS as per factor analysis
+#### Stacked bar chart for scores
+
+```{r, fig.width=8, fig.height=6, out.width='100%'}
+short_scale <- c("30_pos_urg", "15_pos_urg", "5_pos_urg", "35_pos_urg",
+         "44_neg_urg", "12_neg_urg", "34_neg_urg", "17_neg_urg",
+         "32_persev", "24_persev", "37_persev", "42_persev",
+         "33_premed", "48_premed", "55_premed", "6_premed",
+         "31_sen_seek", "3_sen_seek", "18_sen_seek", "8_sen_seek")
+
+upps_dimensions <- c("premeditation",
+                    "negative urgency",
+                    "positive urgency",
+                    "perseverance",
+                    "sensation seeking")
+
+drama_colors <- c("darkred", "red", "orange", "green", "darkgreen")
+
+upps_scores_long_only_top_factors <- upps_scores_long %>% 
+  mutate(item_label = str_c(number_full, "_", dimension)) %>% 
+  mutate(item_label = str_replace(item_label, "premeditation", "premed"),
+         item_label = str_replace(item_label, "negative urgency", "neg_urg"),
+         item_label = str_replace(item_label, "positive urgency", "pos_urg"),
+         item_label = str_replace(item_label, "sensation seeking", "sen_seek"),
+         item_label = str_replace(item_label, "perseverance", "persev")) %>% 
+  filter(item_label %in% short_scale)
+
+
+draw_stacked_bar_chart_for_a_dimension_short <- function(some_dimension){
+  plot <- upps_scores_long_only_top_factors %>% 
+    filter(dimension == some_dimension) %>% 
+    ggplot(aes(x = item, fill = fct_rev(score_numeric_reversed))) +
+      geom_bar(position = "fill") +
+      scale_fill_manual (values = drama_colors) +
+      coord_flip() +
+      labs(x = "", y = "", title = str_c("Dimension: ", some_dimension, "\n(Red means more impulse)"), fill = "Score") +
+      scale_x_discrete(labels = scales::label_wrap(60)) +
+      scale_y_continuous(labels = scales::percent)
+  
+  print(plot)
+}
+
+walk(upps_dimensions, draw_stacked_bar_chart_for_a_dimension_short)
+
+
+```
+
+
+
+#### Mean scores on each dimension
+```{r}
+dimension_scores_by_participant_short_scale <- upps_scores_long_only_top_factors %>% 
+  group_by(prolific_id, dimension) %>% 
+  summarise(scale_score = mean(as.double(score_numeric_reversed), na.rm = TRUE)) %>% 
+  ungroup()
+```
+
+Now let's plot it
+
+```{r}
+dimension_scores_by_participant_short_scale %>% 
+  mutate(dimension = factor(dimension, levels = upps_dimensions)) %>% 
+  ggplot(aes(x = dimension, y = scale_score)) +
+      geom_boxplot() +
+      geom_jitter(width = 0.2, height = 0.1, alpha = 0.3) +
+      labs(x = "", y = "", title = "Mean impulsivity score by dimension")
+```
