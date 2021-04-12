@@ -94,6 +94,24 @@ upps_scores_wide %>%
   datatable()
 ```
 
+## Rerun michael's analysis
+
+```{r}
+upps_scores_wide
+
+jmv::efa(
+    data = upps_scores_wide %>% select(-prolific_id),
+    extraction = "ml",
+    sortLoadings = TRUE,
+    screePlot = TRUE,
+    eigen = TRUE,
+    factorCor = TRUE,
+    factorSummary = TRUE,
+    modelFit = TRUE)
+```
+
+
+
 ## Describe the data
 ### Summary statistics
 ```{r}
@@ -188,12 +206,11 @@ ggplot(scree, aes(x = Factor_n, y = Eigenvalue, group = 1)) +
 ## Factor analysis
 ### Using raw data, and assume data are continuous
 ```{r}
-fafit <- fa(upps_scores_only, nfactors = 4, fm = "ml", rotate = "promax")
+fafit <- fa(upps_scores_only, nfactors = 4, fm = "ml", rotate = "oblimin")
 
 n_factors <- length(fafit$e.values)
 
 print(fafit, cut = .32, sort = TRUE, digits = 3)
 ```
 
-### Assume ordinal data
-TODO
+
